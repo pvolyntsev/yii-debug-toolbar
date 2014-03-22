@@ -14,6 +14,7 @@ Currently, the following panels have been written and are working:
 * A list of superglobals
 * Application settings
 * SQL queries including time to execute and param bindings
+* Cache requests including time
 * Logging output via Yii built-in logging
 
 
@@ -53,6 +54,22 @@ For use [yii-debug-toolbar](/malyshev/yii-debug-toolbar/) need to specify new `r
 	    'enableParamLogging'=>true,
 	),
 ```
+
+
+* To enable reports about cache usage you need to change application configuration like that
+```php
+<?php
+//...
+	'cache'=>array(
+	    'class' => 'ext.yii-debug-toolbar.YiiDebugCacheProxy',
+	    'enableProfiling' => true,
+	    'cache' => array(
+	        'class' => 'system.caching.CFileCache', // or other cache class
+	        //... any other valid settings for cache
+	    ),
+	),
+```
+
 
 ## TODOs and BUGS
 
