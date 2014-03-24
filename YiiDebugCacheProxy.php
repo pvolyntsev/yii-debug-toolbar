@@ -101,7 +101,7 @@ class YiiDebugCacheProxy extends CCache
 		{
 			++$this->_stats['get'];
 			++$this->_stats['hit'];
-			if (false==$value)
+			if (false===$value)
 				++$this->_stats['miss'];
 			Yii::endProfile(__METHOD__.'("'.$id.'")', $this->_logCategory.'.get');
 		}
