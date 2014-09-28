@@ -99,12 +99,12 @@ class YiiDebugCacheProxy extends CCache
 			Yii::beginProfile(__METHOD__.'("'.$id.'")', $this->_logCategory.'.get');
 		}
 		$value = $this->getCacheProxy()->get($id);
+		++$this->_stats['get'];
+		++$this->_stats['hit'];
+		if (false===$value)
+			++$this->_stats['miss'];
 		if ($this->enableProfiling)
 		{
-			++$this->_stats['get'];
-			++$this->_stats['hit'];
-			if (false===$value)
-				++$this->_stats['miss'];
 			Yii::endProfile(__METHOD__.'("'.$id.'")', $this->_logCategory.'.get');
 		}
 		return $value;
@@ -122,14 +122,14 @@ class YiiDebugCacheProxy extends CCache
 			Yii::beginProfile(__METHOD__.'("'.implode('","', $ids).'")', $this->_logCategory.'.mget');
 		}
 		$value = $this->getCacheProxy()->mget($ids);
+		++$this->_stats['mget'];
+		++$this->_stats['hit'];
+		if (empty($value))
+		{
+			++$this->_stats['miss'];
+		}
 		if ($this->enableProfiling)
 		{
-			++$this->_stats['mget'];
-			++$this->_stats['hit'];
-			if (empty($value))
-			{
-				++$this->_stats['miss'];
-			}
 			Yii::endProfile(__METHOD__.'("'.implode('","', $ids).'")', $this->_logCategory.'.mget');
 		}
 		return $value;
@@ -150,9 +150,9 @@ class YiiDebugCacheProxy extends CCache
 			Yii::beginProfile(__METHOD__.'("'.$id.'")', $this->_logCategory.'.set');
 		}
 		$returnValue = $this->getCacheProxy()->set($id, $value, $expire, $dependency);
+		++$this->_stats['set'];
 		if ($this->enableProfiling)
 		{
-			++$this->_stats['set'];
 			Yii::endProfile(__METHOD__.'("'.$id.'")', $this->_logCategory.'.set');
 		}
 		return $returnValue;
@@ -195,9 +195,9 @@ class YiiDebugCacheProxy extends CCache
 			Yii::beginProfile(__METHOD__.'("'.$id.'")', $this->_logCategory.'.delete');
 		}
 		$value = $this->getCacheProxy()->delete($id);
+		++$this->_stats['delete'];
 		if ($this->enableProfiling)
 		{
-			++$this->_stats['delete'];
 			Yii::endProfile(__METHOD__.'("'.$id.'")', $this->_logCategory.'.delete');
 		}
 		return $value;
@@ -214,9 +214,9 @@ class YiiDebugCacheProxy extends CCache
 			Yii::beginProfile(__METHOD__.'()', $this->_logCategory.'.flush');
 		}
 		$value = $this->getCacheProxy()->flush();
+		++$this->_stats['flush'];
 		if ($this->enableProfiling)
 		{
-			++$this->_stats['flush'];
 			Yii::endProfile(__METHOD__.'()', $this->_logCategory.'.flush');
 		}
 		return $value;
@@ -228,15 +228,18 @@ class YiiDebugCacheProxy extends CCache
 	 */
 	public function getStats()
 	{
-		$logger = Yii::getLogger();
-		$this->_stats['get_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.get'));
-		$this->_stats['mget_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.mget'));
-		$this->_stats['set_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.set'));
-		$this->_stats['add_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.add'));
-		$this->_stats['delete_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.delete'));
-		$this->_stats['flush_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.flush'));
-		$this->_stats['call'] = $this->_stats['get'] + $this->_stats['mget'] + $this->_stats['set'] + $this->_stats['delete'] + $this->_stats['flush'];
-		$this->_stats['time'] = $this->_stats['get_time'] + $this->_stats['mget_time'] + $this->_stats['set_time'] + $this->_stats['add_time'] + $this->_stats['delete_time'] + $this->_stats['flush_time'];
+		$this->_stats['call'] = $this->_stats['get'] + $this->_stats['mget'] + $this->_stats['set'] + $this->_stats['add'] + $this->_stats['delete'] + $this->_stats['flush'];
+		if ($this->enableProfiling)
+		{
+			$logger = Yii::getLogger();
+			$this->_stats['get_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.get'));
+			$this->_stats['mget_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.mget'));
+			$this->_stats['set_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.set'));
+			$this->_stats['add_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.add'));
+			$this->_stats['delete_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.delete'));
+			$this->_stats['flush_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.flush'));
+			$this->_stats['time'] = $this->_stats['get_time'] + $this->_stats['mget_time'] + $this->_stats['set_time'] + $this->_stats['delete_time'] + $this->_stats['flush_time'];
+		}
 		return $this->_stats;
 	}
 }
