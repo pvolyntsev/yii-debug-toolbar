@@ -228,7 +228,7 @@ class YiiDebugCacheProxy extends CCache
 	 */
 	public function getStats()
 	{
-		$this->_stats['call'] = $this->_stats['get'] + $this->_stats['mget'] + $this->_stats['set'] + $this->_stats['add'] + $this->_stats['delete'] + $this->_stats['flush'];
+		$this->_stats['count'] = $this->_stats['get'] + $this->_stats['mget'] + $this->_stats['set'] + $this->_stats['add'] + $this->_stats['delete'] + $this->_stats['flush'];
 		if ($this->enableProfiling)
 		{
 			$logger = Yii::getLogger();
