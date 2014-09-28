@@ -48,6 +48,8 @@ class YiiDebugCacheProxy extends CCache
 		'mget_time' => 0,
 		'set' => 0, // write requests quantity
 		'set_time' => 0, // write time
+		'add' => 0, // add requests quantity
+		'add_time' => 0,
 		'delete' => 0, // delete requests quantity
 		'delete_time' => 0, // delete time
 		'flush' => 0,
@@ -157,6 +159,31 @@ class YiiDebugCacheProxy extends CCache
 	}
 
 	/**
+	 * @see \CCache::add
+	 * @param string $id the key identifying the value to be cached
+	 * @param mixed $value the value to be cached
+	 * @param integer $expire the number of seconds in which the cached value will expire. 0 means never expire.
+	 * @param ICacheDependency $dependency dependency of the cached item. If the dependency changes, the item is labeled invalid.
+	 * @return boolean true if the value is successfully stored into cache, false otherwise
+	 */
+	public function add($id,$value,$expire=0,$dependency=null)
+	{
+		if ($this->enableProfiling)
+		{
+			Yii::beginProfile(__METHOD__.'("'.$id.'")', $this->_logCategory.'.add');
+		}
+
+		$returnValue = $this->getCacheProxy()->add($id, $value, $expire, $dependency);
+
+		if ($this->enableProfiling)
+		{
+			++$this->_stats['add'];
+			Yii::endProfile(__METHOD__.'("'.$id.'")', $this->_logCategory.'.add');
+		}
+		return $returnValue;
+	}
+
+	/**
 	 * @see \CCache::delete
 	 * @param string $id
 	 * @return bool
@@ -205,10 +232,11 @@ class YiiDebugCacheProxy extends CCache
 		$this->_stats['get_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.get'));
 		$this->_stats['mget_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.mget'));
 		$this->_stats['set_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.set'));
+		$this->_stats['add_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.add'));
 		$this->_stats['delete_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.delete'));
 		$this->_stats['flush_time'] = array_sum($logger->getProfilingResults(null, $this->_logCategory.'.flush'));
 		$this->_stats['call'] = $this->_stats['get'] + $this->_stats['mget'] + $this->_stats['set'] + $this->_stats['delete'] + $this->_stats['flush'];
-		$this->_stats['time'] = $this->_stats['get_time'] + $this->_stats['mget_time'] + $this->_stats['set_time'] + $this->_stats['delete_time'] + $this->_stats['flush_time'];
+		$this->_stats['time'] = $this->_stats['get_time'] + $this->_stats['mget_time'] + $this->_stats['set_time'] + $this->_stats['add_time'] + $this->_stats['delete_time'] + $this->_stats['flush_time'];
 		return $this->_stats;
 	}
 }
