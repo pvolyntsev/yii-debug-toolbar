@@ -9,5 +9,12 @@
             "email": "malyshev.php@gmail.com",
             "homepage": "http://www.yiiframework.com/extension/yii-debug-toolbar/"
         }    
-    ]
+    ],
+    "autoload": {
+        "classmap": [
+            ".",
+            "widgets/",
+            "panels/"
+        ]
+    }
 }
